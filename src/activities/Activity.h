@@ -64,6 +64,9 @@ class Activity {
   // TODO: remove this in near future
   void onGoHome(HomeMenuItem item = HomeMenuItem::NONE);
   void onSelectBook(const std::string& path);
+  // Request deep sleep. Deferred to the main loop, so it is safe to call from
+  // loop() or an activity-result handler.
+  void onRequestSleep();
 
  protected:
   enum class ListTouchResult : uint8_t {

@@ -1,0 +1,28 @@
+# Local, gitignored credentials.
+#
+# Copy this file to platformio.local.ini and fill in your real MQTT broker
+# details below. platformio.local.ini is loaded automatically (see
+# `extra_configs` in platformio.ini) and is excluded from git by the
+# `*.local*` pattern in .gitignore - never commit it.
+#
+# Override [secrets], not an [env:...] section: PlatformIO lets an extra_config
+# replace an option outright, so build_flags under an env here would silently
+# drop every flag that env sets in platformio.ini (for m5papers3 that includes
+# FREEINK_DEVICE_M5PAPERS3 and the PSRAM flags - the build would not boot).
+# [secrets] feeds ${base.build_flags}, so every env picks it up safely.
+#
+# Without this file, DASHBOARD_MQTT_SERVER/PORT/USER/PASSWORD fall back to
+# empty defaults in DashboardActivity.cpp:22-33, and the Dashboard activity
+# hangs on "Connecting to Home Assistant..." trying to reach an empty host.
+
+[secrets]
+build_flags =
+  -DDASHBOARD_MQTT_SERVER='"homeassistant.local"'
+  -DDASHBOARD_MQTT_PORT=1883
+  -DDASHBOARD_MQTT_USER='"your_mqtt_username"'
+  -DDASHBOARD_MQTT_PASSWORD='"your_mqtt_password"'
+
+# Uncomment and set if PlatformIO can't auto-detect your device's serial port:
+# [env:m5papers3]
+# upload_port = /dev/cu.usbmodemXXXX
+# monitor_port = /dev/cu.usbmodemXXXX

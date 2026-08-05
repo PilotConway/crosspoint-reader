@@ -17,7 +17,7 @@
 class Activity;    // forward declaration
 class RenderLock;  // forward declaration
 
-enum class HomeMenuItem { NONE, FILE_BROWSER, RECENTS, OPDS_BROWSER, FILE_TRANSFER, SETTINGS_MENU };
+enum class HomeMenuItem { NONE, FILE_BROWSER, RECENTS, OPDS_BROWSER, FILE_TRANSFER, SETTINGS_MENU, DASHBOARD };
 
 /**
  * ActivityManager
@@ -48,6 +48,9 @@ class ActivityManager {
   std::unique_ptr<Activity> pendingActivity;
   enum class PendingAction { None, Push, Pop, Replace };
   PendingAction pendingAction = PendingAction::None;
+
+  // Set by requestSleep(); consumed by the main loop after loop() returns.
+  bool sleepRequested = false;
 
   // Task to render and display the activity
   TaskHandle_t renderTaskHandle = nullptr;
@@ -83,6 +86,18 @@ class ActivityManager {
   // goTo... functions are convenient wrapper for replaceActivity()
   void goToFileTransfer();
   void goToSettings();
+  void goToDashboard();
+
+  // Ask the main loop to enter deep sleep once the current loop() has unwound.
+  // Deferred rather than acted on immediately because entering sleep re-enters
+  // loop() (via goToSleep) to render the sleep screen.
+  void requestSleep() { sleepRequested = true; }
+  // Returns true once per requestSleep(), clearing the request.
+  bool consumeSleepRequest() {
+    const bool requested = sleepRequested;
+    sleepRequested = false;
+    return requested;
+  }
   void goToFileBrowser(std::string path = {});
   void goToRecentBooks();
   void goToBrowser();

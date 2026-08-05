@@ -9,6 +9,7 @@
 #include "boot_sleep/BootActivity.h"
 #include "boot_sleep/SleepActivity.h"
 #include "browser/OpdsBookBrowserActivity.h"
+#include "dashboard/DashboardActivity.h"
 #include "home/CrashActivity.h"
 #include "home/FileBrowserActivity.h"
 #include "home/HomeActivity.h"
@@ -187,6 +188,8 @@ void ActivityManager::replaceActivity(std::unique_ptr<Activity>&& newActivity) {
 void ActivityManager::goToFileTransfer() {
   replaceActivity(std::make_unique<CrossPointWebServerActivity>(renderer, mappedInput));
 }
+
+void ActivityManager::goToDashboard() { replaceActivity(std::make_unique<DashboardActivity>(renderer, mappedInput)); }
 
 void ActivityManager::goToSettings() { replaceActivity(std::make_unique<SettingsActivity>(renderer, mappedInput)); }
 

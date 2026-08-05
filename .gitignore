@@ -17,6 +17,7 @@ build
 .history/
 /.venv
 *.local*
+!*.local*.example
 *.cpfont
 lib/EpdFont/scripts/downloaded_fonts/
 lib/EpdFont/scripts/instanced_fonts/
