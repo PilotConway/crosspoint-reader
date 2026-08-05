@@ -561,6 +561,17 @@ void loop() {
   activityManager.loop();
   const unsigned long activityDuration = millis() - activityStartTime;
 
+  // Manual sleep requested from the UI (e.g. the reader menu). Handled here rather
+  // than inside the activity because enterDeepSleep() re-enters activityManager.loop()
+  // to render the sleep screen, which must not happen while the outer loop() is still
+  // unwinding.
+  if (activityManager.consumeSleepRequest()) {
+    LOG_DBG("SLP", "Manual sleep requested from UI");
+    enterDeepSleep();
+    // This should never be hit as `enterDeepSleep` calls esp_deep_sleep_start
+    return;
+  }
+
   const unsigned long loopDuration = millis() - loopStartTime;
   if (loopDuration > maxLoopDuration) {
     maxLoopDuration = loopDuration;

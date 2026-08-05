@@ -888,6 +888,12 @@ void EpubReaderActivity::onReaderMenuConfirm(EpubReaderMenuActivity::MenuAction 
       onGoHome();
       return;
     }
+    case EpubReaderMenuActivity::MenuAction::SLEEP: {
+      // Deferred to the main loop; entering sleep replaces this activity, which
+      // runs onExit() and saves progress just like any other transition.
+      onRequestSleep();
+      return;
+    }
     case EpubReaderMenuActivity::MenuAction::DELETE_CACHE: {
       {
         RenderLock lock(*this);
