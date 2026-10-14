@@ -161,8 +161,9 @@ current workflow matrices before claiming build coverage or published assets.
 
 The [FreeInk SDK profiles](../../freeink-sdk/libs/hardware/BoardConfig/include/BoardConfig.h)
 cover additional hardware. An SDK profile does not by itself establish
-CrossPoint release support or hardware verification. The M5Paper v1.1 and
-LilyGo T5 S3 examples below are local profiles outside the current CI matrix.
+CrossPoint release support or hardware verification. The M5Paper v1.1,
+M5Stack PaperS3, and LilyGo T5 S3 examples below are local profiles outside the
+current CI matrix.
 
 Put those profiles in **`platformio.local.ini`**, a gitignored file merged over
 `platformio.ini` (see `extra_configs`). Personal ports and debug flags belong
@@ -171,7 +172,7 @@ device and capability flags as well as `${base.build_flags}`; a local value
 replaces its whole flag list. Follow [getting started](./getting-started.md)
 for the pinned pioarduino setup.
 
-Both envs below extend the repo's `[base]`, so they build against the `freeink-sdk` submodule with all the normal deps and scripts.
+All envs below extend the repo's `[base]`, so they build against the `freeink-sdk` submodule with all the normal deps and scripts.
 
 ### M5Paper v1.1 (classic ESP32, IT8951 panel)
 
@@ -203,6 +204,32 @@ build_flags =
   -Wl,-u,i2cSlaveInit
 ```
 
+### M5Stack PaperS3 (ESP32-S3, controller-less panel via LovyanGFX)
+
+```ini
+[env:papers3]
+extends = base, firmware_tuned
+board = esp32-s3-devkitc1-n16r8
+board_build.mcu = esp32s3
+build_flags =
+  ${base.build_flags}
+  ; selects the M5PAPER_S3 profile and its built-in m5PaperS3LgfxConfig()
+  -DFREEINK_DEVICE_PAPERS3=1
+  ; M5GFX will not bring this panel up without OPI PSRAM
+  -DBOARD_HAS_PSRAM=1
+  -DCONFIG_SPIRAM_MODE_OCT=1
+  -DCROSSPOINT_VERSION=\"${crosspoint.version}-papers3\"
+  -DENABLE_SERIAL_LOG
+  -DLOG_LEVEL=2
+  -DCROSSPOINT_SHOW_BUTTON_HINTS=0
+lib_deps =
+  ${base.lib_deps}
+  ; LgfxEpdConfig for the PaperS3 (pins, direct-GPIO EPD power)
+  BoardPaperS3=symlink://freeink-sdk/libs/hardware/BoardPaperS3
+  ; PaperS3 panel support landed in M5GFX 0.2.26; do not use the T5 S3's 0.2.20
+  m5stack/M5GFX @ 0.2.32
+```
+
 ### LilyGo T5 S3 (ESP32-S3, controller-less panel via LovyanGFX)
 
 ```ini
@@ -227,9 +254,10 @@ lib_deps =
   m5stack/M5GFX @ 0.2.20
 ```
 
-Then `pio run -e m5paper_v11 -t upload` (or `-e lilygo_t5s3`). Gotchas worth knowing:
+Then `pio run -e m5paper_v11 -t upload` (or `-e papers3` / `-e lilygo_t5s3`). Gotchas worth knowing:
 
 - **Flash mode matters.** The M5Paper is `qio`; the X4-family standalone envs need `dio`. A wrong flash-mode header boots into a `partition 0 invalid magic number 0xffff` loop even though esptool verified the write.
 - **Device flags select board profiles.** The local examples use one `FREEINK_DEVICE_*` flag; the C3 X3/X4 profile deliberately enables both. See `freeink-sdk/platformio.sample.ini` for SDK reference environments and `BoardConfig` for capability defaults.
+- **PaperS3 is touch-only.** It has no front or side buttons, so every page turn and menu action comes from the GT911 touch panel.
 - **Serial logs:** `[base]` does not enable logging; without `-DENABLE_SERIAL_LOG` a non-default env prints nothing.
 - No touch hardware on your desk? The X4 build still exercises the same code paths through buttons; touch-specific behavior (tap zones, gestures) needs a real device.
