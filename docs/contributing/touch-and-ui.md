@@ -207,7 +207,7 @@ build_flags =
 ### M5Stack PaperS3 (ESP32-S3, controller-less panel via LovyanGFX)
 
 ```ini
-[env:papers3]
+[env:m5papers3]
 extends = base, firmware_tuned
 board = esp32-s3-devkitc1-n16r8
 board_build.mcu = esp32s3
@@ -254,10 +254,10 @@ lib_deps =
   m5stack/M5GFX @ 0.2.20
 ```
 
-Then `pio run -e m5paper_v11 -t upload` (or `-e papers3` / `-e lilygo_t5s3`). Gotchas worth knowing:
+Then `pio run -e m5paper_v11 -t upload` (or `-e m5papers3` / `-e lilygo_t5s3`). Gotchas worth knowing:
 
 - **Flash mode matters.** The M5Paper is `qio`; the X4-family standalone envs need `dio`. A wrong flash-mode header boots into a `partition 0 invalid magic number 0xffff` loop even though esptool verified the write.
 - **Device flags select board profiles.** The local examples use one `FREEINK_DEVICE_*` flag; the C3 X3/X4 profile deliberately enables both. See `freeink-sdk/platformio.sample.ini` for SDK reference environments and `BoardConfig` for capability defaults.
-- **PaperS3 is touch-only.** It has no front or side buttons, so every page turn and menu action comes from the GT911 touch panel.
+- **M5PaperS3 is touch-only.** It has no front or side buttons, so every page turn and menu action comes from the GT911 touch panel. The power button only restarts the device, so sleep mode can only be activated by waiting for the sleep timer to activate.
 - **Serial logs:** `[base]` does not enable logging; without `-DENABLE_SERIAL_LOG` a non-default env prints nothing.
 - No touch hardware on your desk? The X4 build still exercises the same code paths through buttons; touch-specific behavior (tap zones, gestures) needs a real device.
